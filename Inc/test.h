@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#define SAMPLE_NUM 10
+#define SAMPLE_NUM 1024
 
 extern bool g_record_finished;
 

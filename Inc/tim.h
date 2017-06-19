@@ -16,7 +16,7 @@ extern TIM_HandleTypeDef htim4;
 
 extern void Error_Handler(void);
 
-void MX_TIM1_Init(int freq);
+void MX_TIM1_Init(int freq, int duty);
 
 void MX_TIM4_Init(void);
 

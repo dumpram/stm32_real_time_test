@@ -8,17 +8,28 @@ TIM_HandleTypeDef htim4;
 
 static int tim4_overflow = 0;
 
-void MX_TIM1_Init(int freq)
+/**
+ * Initializes TIM1 which is reference generator.
+ * 
+ * @param freq frequency in kHz
+ * @param duty duty cycle in %
+ */
+void MX_TIM1_Init(int freq, int duty)
 {
     TIM_ClockConfigTypeDef sClockSourceConfig;
     TIM_MasterConfigTypeDef sMasterConfig;
     TIM_OC_InitTypeDef sConfigOC;
     TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig;
 
+    freq *= 1000;
+
     htim1.Instance = TIM1;
     htim1.Init.Prescaler = 0;
     htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
     htim1.Init.Period = TIM1_BUS_FREQ / freq;
+
+    printf("Period: %d\r\n", TIM1_BUS_FREQ / freq);
+
     htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
     htim1.Init.RepetitionCounter = 0;
     if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
@@ -44,14 +55,14 @@ void MX_TIM1_Init(int freq)
         Error_Handler();
     }
 
-    sConfigOC.OCMode = TIM_OCMODE_TIMING;
-    sConfigOC.Pulse = 0;
+    sConfigOC.OCMode = TIM_OCMODE_PWM1;
+    sConfigOC.Pulse = (TIM1_BUS_FREQ / freq) / (100 / duty);
     sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
     sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
     sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-    sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
+    sConfigOC.OCIdleState = TIM_OCIDLESTATE_SET;
     sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-    if (HAL_TIM_OC_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+    if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
     {
         Error_Handler();
     }
@@ -67,7 +78,6 @@ void MX_TIM1_Init(int freq)
     {
         Error_Handler();
     }
-
     HAL_TIM_MspPostInit(&htim1);
 }
 
@@ -137,12 +147,15 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle)
         GPIO_InitStruct.Pin = GPIO_PIN_9;
         GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
-        GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+        GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
         GPIO_InitStruct.Alternate = GPIO_AF1_TIM1;
         HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-        HAL_NVIC_SetPriority(TIM1_UP_TIM10_IRQn, 2, 0);
-        HAL_NVIC_EnableIRQ(TIM1_UP_TIM10_IRQn);
+        //HAL_NVIC_SetPriority(TIM1_UP_TIM10_IRQn, 2, 0);
+        //HAL_NVIC_EnableIRQ(TIM1_UP_TIM10_IRQn);
+
+        HAL_NVIC_SetPriority(TIM1_CC_IRQn, 1, 0);
+        HAL_NVIC_EnableIRQ(TIM1_CC_IRQn);
     }
 }
 

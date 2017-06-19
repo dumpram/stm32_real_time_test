@@ -32,6 +32,12 @@ int main(void)
     scanf("%d", &freq);
 
     printf("You entered %d kHz\r\n", freq);
+    printf("Enter duty cycle in percent...\r\n");
+
+    int duty_cycle = 50; // default is 50 %
+    scanf("%d", &duty_cycle);
+    printf("You entered %d percent\r\n", duty_cycle);
+
     printf("Press any key to continue...\r\n");
     getchar();
 
@@ -39,10 +45,14 @@ int main(void)
     HAL_TIM_Base_Start_IT(&htim4);
 
     printf("Starting TIM1 (%d kHz square wave)...\r\n", freq);
-    MX_TIM1_Init(freq);
-    HAL_TIM_Base_Start_IT(&htim1);
+    MX_TIM1_Init(freq, duty_cycle);
+    HAL_TIM_Base_Start(&htim1);
+    HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_1);
 
     while(!g_record_finished);
+
+    HAL_TIM_Base_Stop_IT(&htim1);
+    HAL_TIM_Base_Stop_IT(&htim4);
 
     dump_sample_times();
 
@@ -99,7 +109,7 @@ void SystemClock_Config(void)
     HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
 
     /* SysTick_IRQn interrupt configuration */
-    HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
+    //HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
 

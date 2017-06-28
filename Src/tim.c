@@ -1,4 +1,5 @@
 #include "tim.h"
+#include "test.h"
 #include <stdbool.h>
 
 #define TIM1_BUS_FREQ 84000000
@@ -6,7 +7,9 @@
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim4;
 
-static int tim4_overflow = 0;
+//static unsigned int tim4_overflow = 0;
+
+static unsigned long long ticks = 0;
 
 /**
  * Initializes TIM1 which is reference generator.
@@ -28,7 +31,7 @@ void MX_TIM1_Init(int freq, int duty)
     htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
     htim1.Init.Period = TIM1_BUS_FREQ / freq;
 
-    printf("Period: %d\r\n", TIM1_BUS_FREQ / freq);
+    dprintf("Period: %d\r\n", TIM1_BUS_FREQ / freq);
 
     htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
     htim1.Init.RepetitionCounter = 0;
@@ -115,10 +118,14 @@ void MX_TIM4_Init(void)
     HAL_NVIC_EnableIRQ(TIM4_IRQn);
 }
 
-long long get_clock_monotonic()
+unsigned long long get_clock_monotonic()
 {
-    return 
-        tim4_overflow * CLOCK_MONOTONIC_PERIOD + __HAL_TIM_GET_COUNTER(&htim4);
+    // return (unsigned long long)
+    //     ((unsigned long long)(tim4_overflow * CLOCK_MONOTONIC_PERIOD) + 
+    //     (unsigned long long)__HAL_TIM_GET_COUNTER(&htim4));
+    unsigned long long ret;
+    ret = (unsigned long long)(ticks + __HAL_TIM_GET_COUNTER(&htim4));
+    return ret;
 }
 
 void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
@@ -175,8 +182,3 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
     }
 } 
 
-void TIM4_IRQHandler()
-{
-    __HAL_TIM_CLEAR_IT(&htim4, TIM_IT_UPDATE);
-    tim4_overflow++;
-}

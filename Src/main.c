@@ -24,27 +24,22 @@ int main(void)
 {
     platform_init();
 
-    printf("SystemCoreClock freq is: %d Hz\r\n", (int)HAL_RCC_GetHCLKFreq());
-    printf("GPIO latency test application...\r\n");
-    printf("Enter frequency in kHz...\r\n");
+    dprintf("SystemCoreClock freq is: %d Hz\r\n", (int)HAL_RCC_GetHCLKFreq());
+    dprintf("GPIO latency test application...\r\n");
+    dprintf("Enter frequency in kHz...\r\n");
 
-    int freq = 300; // default frequency in kHz
-    scanf("%d", &freq);
+    int freq = 20, duty_cycle = 50;
+    g_num_samples = 8192;
+    dprintf("Enter arguments in format [x,y,z]\r\n");
+    dprintf("x - freq, y - duty, z - num_samples\r\n");
+    scanf("%d,%d,%d", &freq, &duty_cycle, &g_num_samples);
+    printf("84\r\n"); // send clock freq
 
-    printf("You entered %d kHz\r\n", freq);
-    printf("Enter duty cycle in percent...\r\n");
 
-    int duty_cycle = 50; // default is 50 %
-    scanf("%d", &duty_cycle);
-    printf("You entered %d percent\r\n", duty_cycle);
-
-    printf("Press any key to continue...\r\n");
+    dprintf("Press any key to continue...\r\n");
     getchar();
 
-    printf("Starting TIM4 (monotonic clock)...\r\n");
-    HAL_TIM_Base_Start_IT(&htim4);
-
-    printf("Starting TIM1 (%d kHz square wave)...\r\n", freq);
+    dprintf("Starting TIM1 (%d kHz square wave)...\r\n", freq);
     MX_TIM1_Init(freq, duty_cycle);
     HAL_TIM_Base_Start(&htim1);
     HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_1);
@@ -52,7 +47,7 @@ int main(void)
     while(!g_record_finished);
 
     HAL_TIM_Base_Stop_IT(&htim1);
-    HAL_TIM_Base_Stop_IT(&htim4);
+    HAL_TIM_Base_Stop(&htim4);
 
     dump_sample_times();
 

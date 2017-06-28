@@ -1,6 +1,7 @@
 #include <stdbool.h>
 
 #include "usart.h"
+#include "test.h"
 
 static bool byte_received;
 
@@ -24,7 +25,8 @@ int _read (int fd, char *ptr, int len)
     {
         HAL_UART_Receive_IT(&huart6, &byte, 1);
         while (!byte_received);
-        HAL_UART_Transmit(&huart6, &byte, 1, 100);
+        if (DEBUG_MODE == 1)
+            HAL_UART_Transmit(&huart6, &byte, 1, 100);
         byte_received = false;
         ptr[rcnt++] = (char) byte;
     }

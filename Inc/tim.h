@@ -20,7 +20,7 @@ void MX_TIM1_Init(int freq, int duty);
 
 void MX_TIM4_Init(void);
 
-long long get_clock_monotonic();
+unsigned long long get_clock_monotonic();
 
                     
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);

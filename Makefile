@@ -49,7 +49,7 @@ INC += -I Drivers/CMSIS/Device/ST/STM32F4xx/Include
 INC += -I Inc
 
 CFLAGS += $(INC)
-CFLAGS += -g -D STM32F407xx -D USE_HAL_DRIVER
+CFLAGS += -g -D STM32F407xx -D USE_HAL_DRIVER -std=c99
 
 SRC  = $(wildcard Src/*.c)
 SRC += $(wildcard Drivers/STM32F4xx_HAL_Driver/Src/*.c)

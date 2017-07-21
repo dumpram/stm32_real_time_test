@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#define SAMPLE_NUM 8192
+#define SAMPLE_NUM 20000
 #define DEBUG_MODE 0
 
 #define dprintf(...) \
